@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: superset
+spec:
+  type: NodePort
+  ports:
+  - port: 8088
+    nodePort: 30088
+  selector:
+    app: superset
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superset
+spec:
+  selector:
+    matchLabels:
+      app: superset
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: superset
+env:
+  - name: SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: superset-secret
+        key: SECRET_KEY
+
+    spec:
+      containers:
+      - name: superset
+        image: amancevice/superset
+        ports:
+        - containerPort: 8088
+        env:
+        - name: SUPERSET_DB_URI
+          value: "postgresql+psycopg2://superset:superset@postgres/superset"
+        - name: superset-password
+          valueFrom:
+            secretKeyRef:
+              name: superset-user
+              key: superset-password
+
