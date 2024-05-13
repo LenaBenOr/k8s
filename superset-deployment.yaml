@@ -6,7 +6,7 @@ spec:
   type: NodePort
   ports:
   - port: 8088
-    nodePort: 30088
+    nodePort: 30009
   selector:
     app: superset
 ---
@@ -23,13 +23,6 @@ spec:
     metadata:
       labels:
         app: superset
-env:
-  - name: SECRET_KEY
-    valueFrom:
-      secretKeyRef:
-        name: superset-secret
-        key: SECRET_KEY
-
     spec:
       containers:
       - name: superset
@@ -38,10 +31,11 @@ env:
         - containerPort: 8088
         env:
         - name: SUPERSET_DB_URI
-          value: "postgresql+psycopg2://superset:superset@postgres/superset"
-        - name: superset-password
+          value: "postgresql+psycopg2://superset:superset@postgres:5432/superset"
+        - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: superset-user
-              key: superset-password
+              name: superset-secret
+              key: superset
+
 
